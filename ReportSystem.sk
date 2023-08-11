@@ -1,0 +1,55 @@
+# made by AmazingPika
+
+command /report <player> <text>:
+    trigger:
+        message "&e&l[&b&lAsiaBox&e&l] <light green>Your complaint has been forwarded to staff!"
+        add text-argument to {sikayetler::*}
+        set {sikayeteden.%text-argument%} to player
+        set {sikayetedilen.%text-argument%} to player argument
+        loop all players:
+            if loop-player has permission "report.show":
+                send "<gold><bold><underlined>Report System" to loop-player
+                send "<gold>Report:<yellow> ""%text-argument%""" to loop-player
+                send "<gold>The reported person: <yellow>%player argument%" to loop-player
+                send "<gold>Sender: <yellow>%player%" to loop-player
+               
+               
+command /reportadmin <text> [<integer>]:
+    permission: report.admin
+    trigger:
+        text-argument is "list":
+            set {_numara} to 1
+            loop {sikayetler::*}:
+                set {numara.%loop-value%} to {_numara}
+                message "<gold>%{numara.%loop-value%}%. Report Reason: <yellow>%loop-value% <light green>| <gold>Complained: <yellow>%{sikayetedilen.%loop-value%}% <light green>| <gold>Whining: <yellow>%{sikayeteden.%loop-value%}%"
+        text-argument is "remove":
+            if integer argument is not set:
+                message "<pink>Enter a number !"
+            else:
+                set {_silindi} to false
+                loop {sikayetler::*}:
+                    if {numara.%loop-value%} is integer argument:
+                        remove loop-value from {sikayetler::*}
+                        set {_silindi} to true
+                        delete {numara.%loop-value%}
+                        delete {sikayetedilen.%loop-value%}
+                        delete {sikayeteden.%loop-value%}
+                        exit loop
+                if {_silindi} is true:
+                    message "&e&l[&b&lAsiaBox&e&l] <light green>Complaints have been deleted from the system."
+                else:
+                    message "&e&l[&b&lAsiaBox&e&l] <pink>No complaints."
+        text-argument is "clear":   
+            loop {sikayetler::*}:
+                remove loop-value from {sikayetler::*}
+                delete {numara.%loop-value%}
+                delete {sikayetedilen.%loop-value%}
+                delete {sikayeteden.%loop-value%}
+            message "&e&l[&b&lAsiaBox&e&l] <light green>Sikayetleriniz temizlenmistir."
+        text-argument is "help":
+            message "&e&l[&b&lAsiaBox&e&l]"
+            message "<gold><bold>Complaints System Commands:"
+            message "<gold>/reportadmin list <light green>| <yellow>Lists Complaints"
+            message "<gold>/reportadmin remove <numara> <light green>| <yellow>It deletes a complaint from the system."
+            message "<gold>/reportadmin clear <light green>| <yellow>All complaints will delete from the system."
+            message "<gold>/reportadmin help <light green>| <yellow>Complaints about the show commands in the system."
