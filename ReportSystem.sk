@@ -1,55 +1,97 @@
 # made by AmazingPika
 
-command /report <player> <text>:
+on load:
+    send "██████╗ ███████╗██████╗  ██████╗ ██████╗ ████████╗" to console
+    send "██╔══██╗██╔════╝██╔══██╗██╔═══██╗██╔══██╗╚══██╔══╝" to console   
+    send "██████╔╝█████╗  ██████╔╝██║   ██║██████╔╝   ██║   " to console  
+    send "██╔══██╗██╔══╝  ██╔═══╝ ██║   ██║██╔══██╗   ██║   " to console   
+    send "██║  ██║███████╗██║     ╚██████╔╝██║  ██║   ██║   " to console   
+    send "╚═╝  ╚═╝╚══════╝╚═╝      ╚═════╝ ╚═╝  ╚═╝   ╚═╝   " to console   
+    send "" to console                                                     
+    send "███████╗██╗   ██╗███████╗████████╗███████╗███╗   ███╗" to console
+    send "██╔════╝╚██╗ ██╔╝██╔════╝╚══██╔══╝██╔════╝████╗ ████║" to console
+    send "███████╗ ╚████╔╝ ███████╗   ██║   █████╗  ██╔████╔██║" to console
+    send "╚════██║  ╚██╔╝  ╚════██║   ██║   ██╔══╝  ██║╚██╔╝██║" to console
+    send "███████║   ██║   ███████║   ██║   ███████╗██║ ╚═╝ ██║" to console
+    send "╚══════╝   ╚═╝   ╚══════╝   ╚═╝   ╚══════╝╚═╝     ╚═╝" to console
+    send "                      -AmazingPika                   " to console
+
+options:
+
+    prefix: &x&f&f&0&0&0&0&lForRealVanilla &7&o> &x&f&f&0&0&0&0
+    announce_prefix: &x&f&f&0&0&0&0&lForRealVanilla
+    color: &x&f&f&0&0&0&0
+
+command /report [<player>] [<text>]:
     trigger:
-        message "&e&l[&b&lAsiaBox&e&l] <light green>Your complaint has been forwarded to staff!"
-        add text-argument to {sikayetler::*}
-        set {sikayeteden.%text-argument%} to player
-        set {sikayetedilen.%text-argument%} to player argument
+        send "{@prefix} &aYour complaint has been forwarded to staff!"
+        add arg-1 to {reports::*}
+        set {reportplayer::%arg-1%} to player
+        set {reportreason::%arg-1%} to arg-2
         loop all players:
             if loop-player has permission "report.show":
-                send "<gold><bold><underlined>Report System" to loop-player
-                send "<gold>Report:<yellow> ""%text-argument%""" to loop-player
-                send "<gold>The reported person: <yellow>%player argument%" to loop-player
-                send "<gold>Sender: <yellow>%player%" to loop-player
+                send ""
+                send "{@announce_prefix}"
+                send ""
+                send "{@color}&l&nReport System" to loop-player
+                send "" to loop-player
+                send "{@color}Report:&e ""%arg-2%""" to loop-player
+                send "{@color}The reported person: &e%arg-1%" to loop-player
+                send "{@color}Sender: &e%player%" to loop-player
+                send ""
+                play sound "block.note_block.iron_xylophone" at volume 2 at pitch 2 at loop-player
                
                
-command /reportadmin <text> [<integer>]:
+command /reportadmin [<text>] [<integer>]:
     permission: report.admin
     trigger:
-        text-argument is "list":
-            set {_numara} to 1
-            loop {sikayetler::*}:
-                set {numara.%loop-value%} to {_numara}
-                message "<gold>%{numara.%loop-value%}%. Report Reason: <yellow>%loop-value% <light green>| <gold>Complained: <yellow>%{sikayetedilen.%loop-value%}% <light green>| <gold>Whining: <yellow>%{sikayeteden.%loop-value%}%"
-        text-argument is "remove":
-            if integer argument is not set:
-                message "<pink>Enter a number !"
+        if arg-1 is "list":
+            set {_number} to 1
+            loop {reports::*}:
+                set {number::%loop-value%} to {_number}
+                send "{@color}%{number::%loop-value%}%. Report Reason: &e%loop-value% &a| {@color}Reported: &e%{reportreason::%loop-value%}% &a| {@color}By: &e%{reportplayer::%loop-value%}%"
+        if text-argument is "remove":
+            if arg-2 is not set:
+                send "&dEnter a number!"
             else:
-                set {_silindi} to false
-                loop {sikayetler::*}:
-                    if {numara.%loop-value%} is integer argument:
-                        remove loop-value from {sikayetler::*}
-                        set {_silindi} to true
-                        delete {numara.%loop-value%}
-                        delete {sikayetedilen.%loop-value%}
-                        delete {sikayeteden.%loop-value%}
+                set {_deleted} to false
+                loop {reports::*}:
+                    if {number::%loop-value%} is arg-2:
+                        remove loop-value from {reports::*}
+                        set {_deleted} to true
+                        delete {number::%loop-value%}
+                        delete {reportreason::%loop-value%}
+                        delete {reportplayer::%loop-value%}
                         exit loop
-                if {_silindi} is true:
-                    message "&e&l[&b&lAsiaBox&e&l] <light green>Complaints have been deleted from the system."
+                if {_deleted} is true:
+                    send "{@prefix} &aReports have been deleted from the system."
                 else:
-                    message "&e&l[&b&lAsiaBox&e&l] <pink>No complaints."
-        text-argument is "clear":   
-            loop {sikayetler::*}:
-                remove loop-value from {sikayetler::*}
-                delete {numara.%loop-value%}
-                delete {sikayetedilen.%loop-value%}
-                delete {sikayeteden.%loop-value%}
-            message "&e&l[&b&lAsiaBox&e&l] <light green>Sikayetleriniz temizlenmistir."
-        text-argument is "help":
-            message "&e&l[&b&lAsiaBox&e&l]"
-            message "<gold><bold>Complaints System Commands:"
-            message "<gold>/reportadmin list <light green>| <yellow>Lists Complaints"
-            message "<gold>/reportadmin remove <numara> <light green>| <yellow>It deletes a complaint from the system."
-            message "<gold>/reportadmin clear <light green>| <yellow>All complaints will delete from the system."
-            message "<gold>/reportadmin help <light green>| <yellow>Complaints about the show commands in the system."
+                    send "{@prefix} &dNo Reports."
+        if arg-1 is "clear":   
+            loop {reports::*}:
+                remove loop-value from {reports::*}
+                delete {number::%loop-value%}
+                delete {reportreason::%loop-value%}
+                delete {reportplayer::%loop-value%}
+            send "{@prefix} &aYour Reports have been cleared."
+        if arg-1 is "help":
+            send ""
+            send "{@announce_prefix}"
+            send ""
+            send "{@color}&lReports System Commands:"
+            send ""
+            send "{@color}/reportadmin list &a| &eLists Reports"
+            send "{@color}/reportadmin remove <number> &a| &eIt deletes a complaint from the system."
+            send "{@color}/reportadmin clear &a| &eAll Reports will delete from the system."
+            send "{@color}/reportadmin help &a| &eReports about the show commands in the system."
+            send ""
+        if arg-1 is not set:
+            send ""
+            send "{@announce_prefix}"
+            send ""
+            send "{@color}&lReports System Commands:"
+            send "{@color}/reportadmin list &a| &eLists Reports"
+            send "{@color}/reportadmin remove <number> &a| &eIt deletes a complaint from the system."
+            send "{@color}/reportadmin clear &a| &eAll Reports will delete from the system."
+            send "{@color}/reportadmin help &a| &eReports about the show commands in the system."
+            send ""
